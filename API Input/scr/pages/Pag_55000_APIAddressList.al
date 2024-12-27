@@ -1,4 +1,4 @@
-page 55000 "API Site Address"
+page 55000 "API Address List"
 {
     PageType = List;
     ApplicationArea = All;
@@ -42,9 +42,10 @@ page 55000 "API Site Address"
                 PromotedIsBig = true;
                 trigger OnAction()
                 var
-                    CD: Codeunit "API Code Unit";
+                    APICodeUnit: Codeunit "API Code Unit";
                 begin
-                    CD.InsertCountValueFact();
+                    APICodeUnit.InsertCountValueFact(Rec);
+                    Page.Run(Page::"Api Content");
                 end;
             }
         }

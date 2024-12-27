@@ -1,4 +1,4 @@
-pageextension 55000 "Cat Fact" extends "Customer List"
+pageextension 55000 CustomerListExtCatFact extends "Customer List"
 {
     actions
     {
@@ -24,7 +24,7 @@ pageextension 55000 "Cat Fact" extends "Customer List"
                 begin
                     APICodeUnit.HttpMessage()
                 end;
-  
+
             }
         }
     }

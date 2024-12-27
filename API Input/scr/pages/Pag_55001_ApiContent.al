@@ -3,8 +3,8 @@ page 55001 "Api Content"
     PageType = List;
     ApplicationArea = All;
     UsageCategory = Lists;
-    SourceTable = "API Address";
-    
+    SourceTable = "API Content";
+
     layout
     {
         area(Content)

@@ -10,7 +10,6 @@ codeunit 55000 "API Code Unit"
         Jtoken: JsonToken;
         Jobject: JsonObject;
         CatFact: Text;
-
     begin
         HttpCl.Get(URL, HttpRspn);
         HttpRspn.Content.ReadAs(Response);
@@ -21,18 +20,15 @@ codeunit 55000 "API Code Unit"
     end;
 
     // Here we create a function to get the key from the Jsonobject and put it into a list.
-    procedure HttpFact() Jkey: List of [Text];
+    procedure HttpFact(ApiAddress: Record "API Address"; Jobject: JsonObject) Jkey: List of [Text];
     var
         Httpcl: HttpClient;
         HttpRsp: HttpResponseMessage;
         Rsp, URL : Text;
-        Jobject: JsonObject;
         Jtoken: JsonToken;
-        ApiSite: Record "API Address";
-
     begin
-        Httpcl.SetBaseAddress(ApiSite.UrlSite());
-        Httpcl.Get(ApiSite.UrlSite(), HttpRsp);
+        Httpcl.SetBaseAddress(ApiAddress.UrlSite());
+        Httpcl.Get(ApiAddress.UrlSite(), HttpRsp);
         HttpRsp.Content.ReadAs(Rsp);
         Jtoken.ReadFrom(Rsp);
         if Jtoken.IsObject then begin
@@ -41,32 +37,39 @@ codeunit 55000 "API Code Unit"
         end
     end;
 
-    procedure ListkeyToIndKey() TeKey: Text;
+    procedure InsertCountValueFact(APIAddress: Record "API Address")
     var
-        i, counter : Integer;
+        ApiContent: Record "API Content";
+        Jobject: JsonObject;
+        Jtoken: JsonToken;
+        Address, TeKey : Text;
+        Jkey: List of [Text];
+        JkeyTxt: Text;
+        i: Integer;
     begin
+        //Delete all content before retrieving new content
+        ApiContent.SetRange(Name, APIAddress.Name);
+        ApiContent.DeleteAll();
+
+        ApiContent.Init();
+        Jkey := HttpFact(APIAddress, Jobject);
         i := 0;
-        counter := HttpFact().Count;
-        while i < HttpFact().count do begin
+        while i < Jkey.count do begin
             i += 1;
-            HttpFact().Get(i, TeKey);
+            JkeyTxt := Jkey.Get(i);
+            Jobject.Get(JkeyTxt, Jtoken);
+            ApiContent.Fact := JkeyTxt;
+            Jobject.Get(JkeyTxt, Jtoken);
+            Jtoken.WriteTo(ApiContent.Value);
+            // ApiContent.Value := HttpValue(APIAddress);
+            ApiContent.No := i;
+            ApiContent.Name := APIAddress.Name;
+            ApiContent.Insert();
         end;
     end;
 
-    procedure InsertCountValueFact()
-    var
-        ApiAddress: Record "API Address";
-        Address, TeKey : Text;
-        Counter: Integer;
-    begin
-        ApiAddress.Init();
-        ApiAddress.Fact := ListkeyToIndKey();
-        ApiAddress.Value := HttpValue();
-        ApiAddress.No := "No."();
-        ApiAddress.Insert();
-    end;
     // Here we create a function to get the value from the jsonobject
-    procedure HttpValue() answer: Text;
+    procedure HttpValue(ApiAddress: Record "API Address") answer: Text;
     var
         Jobject: JsonObject;
         Jtoken, JVtoken : JsonToken;
@@ -75,11 +78,9 @@ codeunit 55000 "API Code Unit"
         HttpRsp: HttpResponseMessage;
         Rsp: Text;
         int, null : Integer;
-        ApiRec: Record "API Address";
-
     begin
-        Httpcl.SetBaseAddress(ApiRec.UrlSite());
-        Httpcl.Get(ApiRec.UrlSite(), HttpRsp);
+        Httpcl.SetBaseAddress(ApiAddress.UrlSite());
+        Httpcl.Get(ApiAddress.UrlSite(), HttpRsp);
         HttpRsp.Content.ReadAs(Rsp);
         Jtoken.ReadFrom(Rsp);
         if Jtoken.IsObject then begin
@@ -96,7 +97,7 @@ codeunit 55000 "API Code Unit"
     end;
 
     // Here we create a function designed as a counter
-    procedure "No."() i: Integer;
+    procedure "No."(APIAddress: Record "API Address") i: Integer;
     var
         HttpCl: HttpClient;
         HttpRsp: HttpResponseMessage;
@@ -104,11 +105,9 @@ codeunit 55000 "API Code Unit"
         Token: JsonToken;
         Object: JsonObject;
         Lkey: List of [Text];
-        ApiSite: Record "API Address";
-
     begin
-        Httpcl.SetBaseAddress(ApiSite.UrlSite());
-        HttpCl.Get(ApiSite.UrlSite(), HttpRsp);
+        Httpcl.SetBaseAddress(APIAddress.UrlSite());
+        HttpCl.Get(APIAddress.UrlSite(), HttpRsp);
         HttpRsp.Content.ReadAs(Rsp);
         Token.ReadFrom(Rsp);
         if Token.IsObject then begin
