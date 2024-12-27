@@ -26,11 +26,18 @@ codeunit 55000 "API Code Unit"
         HttpRsp: HttpResponseMessage;
         Rsp: Text;
         Jtoken: JsonToken;
+        Jarray: JsonArray;
     begin
         Httpcl.SetBaseAddress(ApiAddress.UrlSite());
         Httpcl.Get(ApiAddress.UrlSite(), HttpRsp);
         HttpRsp.Content.ReadAs(Rsp);
         Jtoken.ReadFrom(Rsp);
+        if Jtoken.IsArray then begin
+            Jarray := Jtoken.AsArray();
+            Message('Count array: %1', Jarray.Count);
+            if Jarray.Get(1, Jtoken) then;
+            //[{"amiiboSeries":"Mario Sports Superstars","character":"Metal Mario","gameSeries":"Mario Sports Superstars","head":"09d00301","image":"https://raw.githubusercontent.com/N3evin/AmiiboAPI/master/images/...
+        end;
         if Jtoken.IsObject then begin
             Jobject := Jtoken.AsObject();
             Jkey := Jobject.Keys();
@@ -119,12 +126,13 @@ codeunit 55000 "API Code Unit"
             end;
         end;
     end;
+
     procedure ArrayEvaluate(APIAddress: Record "API Address")
     var
         Jobject: JsonObject;
         Jarray: JsonArray;
     begin
         HttpFact(APIAddress, Jobject);
-        Evaluate(Jobject)
+        // Evaluate(Jobject)
     end;
 }
