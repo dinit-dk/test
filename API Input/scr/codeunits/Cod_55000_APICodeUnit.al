@@ -20,11 +20,11 @@ codeunit 55000 "API Code Unit"
     end;
 
     // Here we create a function to get the key from the Jsonobject and put it into a list.
-    procedure HttpFact(ApiAddress: Record "API Address"; Jobject: JsonObject) Jkey: List of [Text];
+    procedure HttpFact(ApiAddress: Record "API Address"; var Jobject: JsonObject) Jkey: List of [Text];
     var
         Httpcl: HttpClient;
         HttpRsp: HttpResponseMessage;
-        Rsp, URL : Text;
+        Rsp: Text;
         Jtoken: JsonToken;
     begin
         Httpcl.SetBaseAddress(ApiAddress.UrlSite());
@@ -118,5 +118,13 @@ codeunit 55000 "API Code Unit"
                 i += 1;
             end;
         end;
+    end;
+    procedure ArrayEvaluate(APIAddress: Record "API Address")
+    var
+        Jobject: JsonObject;
+        Jarray: JsonArray;
+    begin
+        HttpFact(APIAddress, Jobject);
+        Evaluate(Jobject)
     end;
 }
