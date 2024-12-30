@@ -80,12 +80,18 @@ codeunit 55000 "API Code Unit"
             ApiContent.Value := CopyStr(ValueText, 1, 400);
             ApiContent.Json.CreateOutStream(outs);
             // outs.Write('jesper' + crlf);
-            squarepos := StrPos(ValueText, '[');
-            ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '  ' + CopyStr(ValueText, squarepos + 1);
-            squarepos := StrPos(ValueText, '{');
-            ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
-            squarepos := StrPos(ValueText, ',');
-            ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
+            // squarepos := StrPos(ValueText, '[');
+            // ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '  ' + CopyStr(ValueText, squarepos + 1);
+            // squarepos := StrPos(ValueText, '{');
+            // ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
+            // squarepos := StrPos(ValueText, ',');
+            // ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
+            ValueText := InsertNewLine(ValueText, '[', true);
+            ValueText := InsertNewLine(ValueText, '{', true);
+            ValueText := InsertNewLine(ValueText, '",', true);
+            ValueText := InsertNewLine(ValueText, '},', true);
+            // ValueText := InsertNewLine(ValueText, '}', false);
+            // ValueText := InsertNewLine(ValueText, ']', false);
             outs.Write(ValueText);
             // ApiContent.Value := HttpValue(APIAddress);
             ApiContent.No := i;
@@ -146,12 +152,50 @@ codeunit 55000 "API Code Unit"
         end;
     end;
 
-    procedure ArrayEvaluate(APIAddress: Record "API Address")
+    procedure InsertNewLine(ValueTxt: Text; Value: Text; NewLineLast: Boolean): Text
     var
-        Jobject: JsonObject;
-        Jarray: JsonArray;
+        crlf: Text;
+        ValuePos: Integer;
+        ListPos: List of [Integer];
+        TempValueTxt: Text;
+        ValueLen: Integer;
     begin
-        HttpFact(APIAddress, Jobject);
-        // Evaluate(Jobject)
+        crlf[1] := 13;
+        crlf[2] := 10;
+        TempValueTxt := ValueTxt;
+        ValuePos := StrPos(ValueTxt, Value);
+        ValueLen := Strlen(Value);
+        while ValuePos > 0 do begin
+
+            if NewLineLast then begin
+                // Insert new line
+                ValueTxt := CopyStr(ValueTxt, 1, ValuePos + ValueLen - 1) + crlf + CopyStr(ValueTxt, ValuePos + ValueLen);
+
+                // Find next text
+                TempValueTxt := CopyStr(ValueTxt, ValuePos + ValueLen);
+
+                // Find next pos
+                if TempValueTxt.Contains(Value) then
+                    // Changes value's position to the next value in the text.
+                    ValuePos += StrPos(TempValueTxt, Value)
+                else
+                    ValuePos := 0;
+            end else begin
+                // Insert new line
+                ValueTxt := CopyStr(ValueTxt, 1, ValuePos + ValueLen - 2) + crlf + CopyStr(ValueTxt, ValuePos + ValueLen - 1);
+
+                // Find next text
+                TempValueTxt := CopyStr(ValueTxt, ValuePos + ValueLen);
+
+                // Find next pos
+                if TempValueTxt.Contains(Value) then
+                    // Changes value's position to the next value in the text.
+                    ValuePos += StrPos(TempValueTxt, Value)
+                else
+                    ValuePos := 0;
+            end;
+
+        end;
+        exit(valuetxt);
     end;
 }
