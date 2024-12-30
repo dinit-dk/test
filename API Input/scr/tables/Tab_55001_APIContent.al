@@ -25,6 +25,10 @@ table 55001 "API Content"
             DataClassification = CustomerContent;
             Editable = false;
         }
+        field(7; Json; Blob)
+        {
+            DataClassification = CustomerContent;
+        }
     }
 
     keys

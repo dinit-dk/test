@@ -29,4 +29,32 @@ page 55001 "Api Content"
             }
         }
     }
+    actions
+    {
+        area(Processing)
+        {
+            action(Do)
+            {
+                Caption = 'Do';
+                Promoted = true;
+                PromotedIsBig = true;
+                trigger OnAction()
+                var
+                    APICodeUnit: Codeunit "API Code Unit";
+                    ins: InStream;
+                    T: Text;
+                    TempBlob: Codeunit "Temp Blob";
+                    tofile: Text;
+                begin
+                    if not Rec.Json.HasValue then
+                        Error('Json has no value');
+                    Rec.CalcFields(Json);
+                    Rec.Json.CreateInStream(ins);
+                    ins.ReadText(T);
+                    tofile := 'Json.txt';
+                    DownloadFromStream(ins,'','','',tofile);
+                end;
+            }
+        }
+    }
 }

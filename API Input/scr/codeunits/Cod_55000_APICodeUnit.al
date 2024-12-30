@@ -53,7 +53,16 @@ codeunit 55000 "API Code Unit"
         Jkey: List of [Text];
         JkeyTxt: Text;
         i: Integer;
+        ValueText: Text;
+        outs: OutStream;
+        crlf: Text;
+        squarepos: Integer;
+        comma: Text;
     begin
+        // Text that contains a new line.
+        crlf[1] := 13;
+        crlf[2] := 10;
+
         //Delete all content before retrieving new content
         ApiContent.SetRange(Name, APIAddress.Name);
         ApiContent.DeleteAll();
@@ -67,7 +76,17 @@ codeunit 55000 "API Code Unit"
             Jobject.Get(JkeyTxt, Jtoken);
             ApiContent.Fact := JkeyTxt;
             Jobject.Get(JkeyTxt, Jtoken);
-            Jtoken.WriteTo(ApiContent.Value);
+            Jtoken.WriteTo(ValueText);
+            ApiContent.Value := CopyStr(ValueText, 1, 400);
+            ApiContent.Json.CreateOutStream(outs);
+            // outs.Write('jesper' + crlf);
+            squarepos := StrPos(ValueText, '[');
+            ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '  ' + CopyStr(ValueText, squarepos + 1);
+            squarepos := StrPos(ValueText, '{');
+            ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
+            squarepos := StrPos(ValueText, ',');
+            ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
+            outs.Write(ValueText);
             // ApiContent.Value := HttpValue(APIAddress);
             ApiContent.No := i;
             ApiContent.Name := APIAddress.Name;
