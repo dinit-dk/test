@@ -90,8 +90,8 @@ codeunit 55000 "API Code Unit"
             ValueText := InsertNewLine(ValueText, '{', true);
             ValueText := InsertNewLine(ValueText, '",', true);
             ValueText := InsertNewLine(ValueText, '},', true);
-            // ValueText := InsertNewLine(ValueText, '}', false);
-            // ValueText := InsertNewLine(ValueText, ']', false);
+            ValueText := InsertNewLine(ValueText, '}', false);
+            ValueText := InsertNewLine(ValueText, ']', false);
             outs.Write(ValueText);
             // ApiContent.Value := HttpValue(APIAddress);
             ApiContent.No := i;
@@ -167,34 +167,29 @@ codeunit 55000 "API Code Unit"
         ValueLen := Strlen(Value);
         while ValuePos > 0 do begin
 
-            if NewLineLast then begin
-                // Insert new line
-                ValueTxt := CopyStr(ValueTxt, 1, ValuePos + ValueLen - 1) + crlf + CopyStr(ValueTxt, ValuePos + ValueLen);
+            // Insert new line
+            if NewLineLast then
+                ValueTxt := CopyStr(ValueTxt, 1, ValuePos + ValueLen - 1) + crlf + CopyStr(ValueTxt, ValuePos + ValueLen)
+            else
+                ValueTxt := CopyStr(ValueTxt, 1, ValuePos - 1) + crlf + CopyStr(ValueTxt, ValuePos);
 
-                // Find next text
-                TempValueTxt := CopyStr(ValueTxt, ValuePos + ValueLen);
 
-                // Find next pos
-                if TempValueTxt.Contains(Value) then
-                    // Changes value's position to the next value in the text.
-                    ValuePos += StrPos(TempValueTxt, Value)
-                else
-                    ValuePos := 0;
-            end else begin
-                // Insert new line
-                ValueTxt := CopyStr(ValueTxt, 1, ValuePos + ValueLen - 2) + crlf + CopyStr(ValueTxt, ValuePos + ValueLen - 1);
 
-                // Find next text
-                TempValueTxt := CopyStr(ValueTxt, ValuePos + ValueLen);
+            // Find next text
+            if NewLineLast then
+                TempValueTxt := CopyStr(ValueTxt, ValuePos + ValueLen)
+            else
+                TempValueTxt := CopyStr(ValueTxt, ValuePos + ValueLen + StrLen(crlf));
 
-                // Find next pos
-                if TempValueTxt.Contains(Value) then
-                    // Changes value's position to the next value in the text.
-                    ValuePos += StrPos(TempValueTxt, Value)
-                else
-                    ValuePos := 0;
-            end;
 
+            // Find next pos
+            if TempValueTxt.Contains(Value) then begin
+                // Changes value's position to the next value in the text.
+                ValuePos += StrPos(TempValueTxt, Value);
+                if NewLineLast then
+                    ValuePos += StrLen(crlf) + 1;
+            end else
+                ValuePos := 0;
         end;
         exit(valuetxt);
     end;
