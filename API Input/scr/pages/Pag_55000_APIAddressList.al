@@ -48,34 +48,53 @@ page 55000 "API Address List"
                     Page.Run(Page::"Api Content");
                 end;
             }
+            action(Do_2)
+            {
+                Caption = 'Do_2';
+                Promoted = true;
+                PromotedIsBig = true;
+
+                trigger OnAction()
+                var
+                    CdUnit: Codeunit "API Code Unit";
+                    Jsontok: JsonToken;
+                    Httpcl: HttpClient;
+                    HttpRsp: HttpResponseMessage;
+                    RspTxt: Text;
+                begin
+                    Page.Run(Page::"Api Content");
+                end;
+            }
+
         }
     }
 
-    trigger OnOpenPage()
-    var
-        TestText: Text;
-        Outs: OutStream;
-        Ins: InStream;
-        TempBlob: Codeunit "Temp Blob";
-        ToFile: Text;
-        NumberOfChars: Integer;
-        CRLF: Text;
-    begin
-        CRLF[1] := 13;
-        CRLF[2] := 10;
-        while NumberOfChars <= 200 do begin
-            NumberOfChars += 1;
-            if not (NumberOfChars in [13, 10]) then begin
-                TestText += StrSubstNo('%1 : ', Format(NumberOfChars));
-                TestText[StrLen(TestText) + 1] := NumberOfChars;
-                TestText += CRLF;
-            end
-        end;
+    // trigger OnOpenPage()
+    // var
+    //     TestText: Text;
+    //     Outs: OutStream;
+    //     Ins: InStream;
+    //     TempBlob: Codeunit "Temp Blob";
+    //     ToFile: Text;
+    //     NumberOfChars: Integer;
+    //     CRLF: Text;
+    // begin
+    //     CRLF[1] := 13;
+    //     CRLF[2] := 10;
+    //     while NumberOfChars <= 200 do begin
+    //         NumberOfChars += 1;
+    //         if not (NumberOfChars in [13, 10]) then begin
+    //             TestText += StrSubstNo('%1 : ', Format(NumberOfChars));
+    //             TestText[StrLen(TestText) + 1] := NumberOfChars;
+    //             TestText += CRLF;
+    //         end
+    //     end;
 
-        TempBlob.CreateOutStream(Outs, TextEncoding::UTF8);
-        Outs.WriteText(TestText);
-        TempBlob.CreateInStream(Ins);
-        ToFile := 'Test Text Array/Char.txt';
-        DownloadFromStream(Ins, '', '', '', ToFile);
-    end;
+    //     TempBlob.CreateOutStream(Outs, TextEncoding::UTF8);
+    //     Outs.WriteText(TestText);
+    //     TempBlob.CreateInStream(Ins);
+    //     ToFile := 'Test Text Array/Char.txt';
+    //     DownloadFromStream(Ins, '', '', '', ToFile);
+    // end;
+
 }

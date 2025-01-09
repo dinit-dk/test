@@ -193,4 +193,160 @@ codeunit 55000 "API Code Unit"
         end;
         exit(valuetxt);
     end;
+
+    procedure SaveJsonTokenToTempBlob()
+    var
+        JsonToken: JsonToken;
+        TempBlob: Codeunit "Temp Blob";
+        JsonObject: JsonObject;
+        JsonArray: JsonArray;
+        JsonTextWriter: Text;
+        JsonText: Text;
+        OutStream: OutStream;
+        InStream: InStream;
+        FileName: Text;
+        MimeType: Text;
+        CRLF: Text;
+        JsonTextCallTxt: Text;
+        ApiAddress: Record "API Address";
+        ApiContent: Record "API Content";
+        Url: Text;
+    begin
+        // Define CRLF (Carriage Return + Line Feed) for new lines
+        CRLF[1] := 13;
+        CRLF[2] := 10;
+
+        Url := ApiAddress.UrlSite();
+        JsonTextCallTxt := JsonTextCall(Url);
+
+        // Example of initializing a JsonToken (adjust to your scenario)
+        JsonToken.ReadFrom(JsonTextCallTxt); // This is just a placeholder example.
+
+        // Format the JsonToken into a readable JSON string
+        JsonText := ReturnFormatJsonText(JsonToken, 0, false);
+
+        // Write the JSON text to the TempBlob outstream
+        TempBlob.CreateOutStream(OutStream);
+        OutStream.WriteText(JsonText);
+
+        // Create an instream from the TempBlob
+        TempBlob.CreateInStream(InStream);
+
+        // Define the MIME type and file name for the JSON file
+        FileName := 'MyJsonFile.json'; // Name of the output file
+
+        // Save the file by downloading it
+        DownloadFromStream(InStream, '', '', '', FileName);
+    end;
+
+    procedure ReturnFormatJsonText(JToken: JsonToken; Indent: Integer; IsValue: Boolean) JsonText: Text
+    var
+        JArray: JsonArray;
+        JObject: JsonObject;
+        LocalJToken: JsonToken;
+        LocalText: Text;
+        CRLF: Text;
+        JCount: Integer;
+        i: Integer;
+    begin
+        // Define CRLF for new lines
+        CRLF[1] := 13;
+        CRLF[2] := 10;
+
+        if JToken.IsValue() then begin
+            // If the token is a value, write it directly to the JSON text
+            JToken.WriteTo(LocalText);
+            JsonText := LocalText;
+        end else if JToken.IsObject() then begin
+            // If the token is an object, start formatting it
+            if IsValue then
+                JsonText := '{' + CRLF
+            else
+                JsonText := GetStringOfSpaces(Indent) + '{' + CRLF;
+
+            // Convert the object keys and values into JSON format
+            JObject := JToken.AsObject();
+            JCount := JObject.Keys.Count;
+            i := 0;
+            while i < JCount do begin
+                i += 1;
+                if JObject.Keys.Get(i, LocalText) then begin
+                    JsonText += GetStringOfSpaces(Indent + 2) + '"' + LocalText + '": ';
+                    if JObject.Values.Get(i, LocalJToken) then begin
+                        JsonText += ReturnFormatJsonText(LocalJToken, Indent + 2, true);
+                        if not (i = JCount) then
+                            JsonText += ',';
+                        JsonText += CRLF;
+                    end;
+                end;
+            end;
+
+            // Close the object with a closing brace
+            JsonText += GetStringOfSpaces(Indent) + '}';
+        end else if JToken.IsArray() then begin
+            // If the token is an array, start formatting it
+            JsonText := GetStringOfSpaces(Indent) + '[' + CRLF;
+
+            JArray := JToken.AsArray();
+            JCount := JArray.Count;
+            i := 0;
+            while i < JCount do begin
+                if JArray.Get(i, LocalJToken) then begin
+                    JsonText += ReturnFormatJsonText(LocalJToken, Indent + 2, false);
+                    if not (i + 1 = JCount) then
+                        JsonText += ',';
+                    JsonText += CRLF;
+                end;
+                i += 1;
+            end;
+
+            // Close the array with a closing bracket
+            JsonText += GetStringOfSpaces(Indent) + ']';
+        end else
+            // If the token type is unknown, raise an error
+            Error('Unknown JsonToken type.');
+    end;
+
+    procedure GetStringOfSpaces(NumberOfSpaces: Integer): Text
+    var
+        SpaceString: Text;
+    begin
+        while NumberOfSpaces > 0 do begin
+            NumberOfSpaces -= 1;
+            SpaceString += '  ';
+        end;
+        exit(SpaceString);
+    end;
+
+    local procedure JsonTextSample(): Text
+    var
+        Httpcl: HttpClient;
+        Httprsp: HttpResponseMessage;
+        JsonTxt, Rsp : Text;
+        APIAddress: Record "API Address";
+        ApiContent: Record "API Content";
+    begin
+        // Return a sample JSON text for demonstration purposes
+        ApiContent.Init();
+
+        Httpcl.SetBaseAddress(APIAddress.Url + APIAddress.Search);
+        Httpcl.Get(APIAddress.UrlSite(), Httprsp);
+        Httprsp.Content.ReadAs(Rsp);
+        JsonTxt := Rsp;
+
+        ApiContent.Insert();
+    end;
+
+    procedure JsonTextCall(Url: Text) Rsp: Text;
+    var
+        Httpcl: HttpClient;
+        HttpRsp: HttpResponseMessage;
+        Jtoken: JsonToken;
+
+    begin
+        Httpcl.SetBaseAddress(Url);
+        Httpcl.Get(Url, HttpRsp);
+        HttpRsp.Content.ReadAs(Rsp);
+        Jtoken.ReadFrom(Rsp);
+    end;
 }

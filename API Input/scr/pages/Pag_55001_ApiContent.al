@@ -55,6 +55,15 @@ page 55001 "Api Content"
                     DownloadFromStream(ins,'','','',tofile);
                 end;
             }
+            action(Do_2)
+            {
+                trigger OnAction()
+                var
+                CdUnit: Codeunit "API Code Unit";
+                begin
+                    CdUnit.SaveJsonTokenToTempBlob();
+                end;
+            }
         }
     }
 }
