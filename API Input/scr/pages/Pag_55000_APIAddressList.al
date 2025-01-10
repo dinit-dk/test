@@ -62,6 +62,7 @@ page 55000 "API Address List"
                     HttpRsp: HttpResponseMessage;
                     RspTxt: Text;
                 begin
+                    CdUnit.InsertCountValueFact(Rec);
                     Page.Run(Page::"Api Content");
                 end;
             }

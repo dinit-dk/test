@@ -67,7 +67,6 @@ codeunit 55000 "API Code Unit"
         ApiContent.SetRange(Name, APIAddress.Name);
         ApiContent.DeleteAll();
 
-        ApiContent.Init();
         Jkey := HttpFact(APIAddress, Jobject);
         i := 0;
         while i < Jkey.count do begin
@@ -86,13 +85,13 @@ codeunit 55000 "API Code Unit"
             // ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
             // squarepos := StrPos(ValueText, ',');
             // ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
-            ValueText := InsertNewLine(ValueText, '[', true);
-            ValueText := InsertNewLine(ValueText, '{', true);
-            ValueText := InsertNewLine(ValueText, '",', true);
-            ValueText := InsertNewLine(ValueText, '},', true);
-            ValueText := InsertNewLine(ValueText, '}', false);
-            ValueText := InsertNewLine(ValueText, ']', false);
-            outs.Write(ValueText);
+            // // ValueText := InsertNewLine(ValueText, '[', true);
+            // // ValueText := InsertNewLine(ValueText, '{', true);
+            // // ValueText := InsertNewLine(ValueText, '",', true);
+            // // ValueText := InsertNewLine(ValueText, '},', true);
+            // // ValueText := InsertNewLine(ValueText, '}', false);
+            // // ValueText := InsertNewLine(ValueText, ']', false);
+            // outs.Write(ValueText);
             // ApiContent.Value := HttpValue(APIAddress);
             ApiContent.No := i;
             ApiContent.Name := APIAddress.Name;
@@ -203,11 +202,11 @@ codeunit 55000 "API Code Unit"
         JsonTextWriter: Text;
         JsonText: Text;
         OutStream: OutStream;
-        InStream: InStream;
+        Ins: InStream;
         FileName: Text;
         MimeType: Text;
         CRLF: Text;
-        JsonTextCallTxt: Text;
+        T: Text;
         ApiAddress: Record "API Address";
         ApiContent: Record "API Content";
         Url: Text;
@@ -215,12 +214,9 @@ codeunit 55000 "API Code Unit"
         // Define CRLF (Carriage Return + Line Feed) for new lines
         CRLF[1] := 13;
         CRLF[2] := 10;
-
-        Url := ApiAddress.UrlSite();
-        JsonTextCallTxt := JsonTextCall(Url);
-
+        
         // Example of initializing a JsonToken (adjust to your scenario)
-        JsonToken.ReadFrom(JsonTextCallTxt); // This is just a placeholder example.
+        JsonToken.ReadFrom(T); // This is just a placeholder example.
 
         // Format the JsonToken into a readable JSON string
         JsonText := ReturnFormatJsonText(JsonToken, 0, false);
@@ -230,13 +226,13 @@ codeunit 55000 "API Code Unit"
         OutStream.WriteText(JsonText);
 
         // Create an instream from the TempBlob
-        TempBlob.CreateInStream(InStream);
+        TempBlob.CreateInStream(Ins);
 
         // Define the MIME type and file name for the JSON file
         FileName := 'MyJsonFile.json'; // Name of the output file
 
         // Save the file by downloading it
-        DownloadFromStream(InStream, '', '', '', FileName);
+        DownloadFromStream(Ins, '', '', '', FileName);
     end;
 
     procedure ReturnFormatJsonText(JToken: JsonToken; Indent: Integer; IsValue: Boolean) JsonText: Text
