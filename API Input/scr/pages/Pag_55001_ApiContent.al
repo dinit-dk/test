@@ -53,11 +53,12 @@ page 55001 "Api Content"
                     end else begin
                         Rec.CalcFields(Json);
                         Rec.Json.CreateInStream(ins);
+                        TempBlob.CreateOutStream(Outs);
                         // Write T to Jtoken
                         JTok.ReadFrom(ins);
                         // Call reformat json function
                         Jsontext := APICodeUnit.ReturnFormatJsonText(JTok, 0, false);
-                        Outs.Write(Jsontext);
+                        Outs.Write(Jsontext);                        
                         // Create temblob for reformatted json text to download from instream
                         TempBlob.CreateInStream(Ins);
                         tofile := 'Json.json';

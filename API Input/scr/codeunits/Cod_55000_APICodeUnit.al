@@ -77,22 +77,8 @@ codeunit 55000 "API Code Unit"
             Jobject.Get(JkeyTxt, Jtoken);
             Jtoken.WriteTo(ValueText);
             ApiContent.Value := CopyStr(ValueText, 1, 400);
-            ApiContent.Json.CreateOutStream(outs);
-            // outs.Write('jesper' + crlf);
-            // squarepos := StrPos(ValueText, '[');
-            // ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '  ' + CopyStr(ValueText, squarepos + 1);
-            // squarepos := StrPos(ValueText, '{');
-            // ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
-            // squarepos := StrPos(ValueText, ',');
-            // ValueText := CopyStr(ValueText, 1, squarepos) + crlf + '    ' + CopyStr(ValueText, squarepos + 1);
-            // // ValueText := InsertNewLine(ValueText, '[', true);
-            // // ValueText := InsertNewLine(ValueText, '{', true);
-            // // ValueText := InsertNewLine(ValueText, '",', true);
-            // // ValueText := InsertNewLine(ValueText, '},', true);
-            // // ValueText := InsertNewLine(ValueText, '}', false);
-            // // ValueText := InsertNewLine(ValueText, ']', false);
-            // outs.Write(ValueText);
-            // ApiContent.Value := HttpValue(APIAddress);
+            ApiContent.Json.CreateOutStream(outs); //Opretter rør til Json
+            outs.Write(ValueText); //Putter data i json feltet igennem røret
             ApiContent.No := i;
             ApiContent.Name := APIAddress.Name;
             ApiContent.Insert();
